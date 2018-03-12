@@ -1,3 +1,4 @@
+package com.anyangdp.handler;
 /**
  * For Business Activities.
  * <p>
@@ -6,14 +7,10 @@
  * <p>
  * Create At 2016年8月24日
  */
-package com.anyangdp.handler;
 
 import lombok.Data;
 
-/**
- * @author william
- *
- */
+
 @Data
 public class GenericResponse<T> {
 
@@ -24,11 +21,4 @@ public class GenericResponse<T> {
     private T data;
 
     private PageDTO page;
-
-    public GenericResponse() {
-    }
-
-    public GenericResponse(T data, boolean result) {
-        this.data = data;
-    }
 }

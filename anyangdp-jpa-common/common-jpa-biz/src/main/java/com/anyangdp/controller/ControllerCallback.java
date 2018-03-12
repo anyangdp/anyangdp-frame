@@ -1,3 +1,7 @@
+package com.anyangdp.controller;
+
+import com.anyangdp.handler.GenericResponse;
+
 /**
  * For Business Activities.
  *
@@ -6,7 +10,7 @@
  *
  * Create At 2016年8月24日
  */
-package com.anyangdp.handler;
+
 
 @FunctionalInterface
 public interface ControllerCallback<RS> {

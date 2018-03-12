@@ -3,9 +3,6 @@ package com.anyangdp.handler;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author william
- */
 @Setter
 @Getter
 public class PageDTO {

@@ -21,7 +21,7 @@
     <properties>
         <dozer.version>5.5.1</dozer.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <spring-boot-dependencies.version>1.4.2.RELEASE</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>1.5.6.RELEASE</spring-boot-dependencies.version>
         <spring-webmvc.version>4.3.4.RELEASE</spring-webmvc.version>
         <spring-security-oauth2.version>2.0.11.RELEASE</spring-security-oauth2.version>
         <bootstrap.version>3.3.7-1</bootstrap.version>
@@ -49,26 +49,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hashids</groupId>
-                <artifactId>hashids</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.dozer</groupId>
-                <artifactId>dozer</artifactId>
-                <version>${dozer.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.21</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.21</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
@@ -111,58 +91,8 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector-java.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.mchange</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>${c3p0.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.1-api</artifactId>
-                <version>1.0.0.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-c3p0</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjtools</artifactId>
-                <version>${aspectjtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.craftsman</groupId>
-                <artifactId>dozer-jdk8-support</artifactId>
-                <version>${dozer-jdk8-support.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson-datatype-jsr310.version}</version>
-            </dependency>
 
             <!-- 阿里云邮件服务 -->
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>aliyun-java-sdk-core</artifactId>
-                <version>${aliyun-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>aliyun-java-sdk-dm</artifactId>
-                <version>${aliyun-dm.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -170,9 +100,10 @@
             </dependency>
 
             <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                <version>${spring-boot-dependencies.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

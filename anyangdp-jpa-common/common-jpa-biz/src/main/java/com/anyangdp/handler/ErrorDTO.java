@@ -1,3 +1,4 @@
+package com.anyangdp.handler;
 /**
  * For Business Activities.
  *
@@ -6,15 +7,9 @@
  *
  * Create At 2016年8月24日
  */
-package com.anyangdp.handler;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author william
- *
- */
 @Data
 @NoArgsConstructor
 public class ErrorDTO {

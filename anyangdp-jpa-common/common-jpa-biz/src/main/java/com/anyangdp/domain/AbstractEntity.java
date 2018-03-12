@@ -1,4 +1,4 @@
-package com.anyangdp.damain.entity;
+package com.anyangdp.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,17 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
-/**
- * @author wjwjtftf
- */
-@Getter
 @Setter
+@Getter
 @MappedSuperclass
 public abstract class AbstractEntity<ID extends Serializable> extends AbstractPersistableEntity<ID> {
 
-	private static final long serialVersionUID = 1L;
-	
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private ID id;
 }

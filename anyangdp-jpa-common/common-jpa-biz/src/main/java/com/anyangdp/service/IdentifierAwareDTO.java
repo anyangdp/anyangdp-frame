@@ -1,8 +1,8 @@
 package com.anyangdp.service;
 
-public interface IdentifierAwareDTO {
+public interface IdentifierAwareDTO<ID> {
 
-    String getId();
+    ID getId();
 
-    void setId(String hashId);
+    void setId(ID id);
 }

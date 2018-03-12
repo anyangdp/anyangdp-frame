@@ -1,3 +1,4 @@
+package com.anyangdp.controller;
 /**
  * For Business Activities.
  *
@@ -6,17 +7,14 @@
  *
  * Create At 2016年8月24日
  */
-package com.anyangdp.handler;
 
+import com.anyangdp.handler.GenericResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 
 import java.util.concurrent.Callable;
 
-/**
- * @author william
- *
- */
+
 @Slf4j
 public class ControllerTemplate {
 
@@ -44,7 +42,7 @@ public class ControllerTemplate {
 			throws Exception {
 
 		GenericResponse<RS> response = new GenericResponse<RS>();
-		
+
 		if (null != bindingResult) {
 
 			log.info("@@@ PROC: action with validator @@@");

@@ -1,25 +1,20 @@
-/**
- * For Business Activities.
+package com.anyangdp.utils;
+/** For Business Activities.
  *
  * Copyright 2016 zhongxin, BSS Team. All rights reserved.
  * May not be used without authorization.
  *
  * Create At 2016年9月4日
  */
-package com.anyangdp.utils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-/**
- * @author william
- *
- */
 public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
 	/**
 	 * 获得超类的参数类型，取第一个参数类型
-	 * 
+	 *
 	 * @param <T>
 	 *            类型参数
 	 * @param clazz
@@ -32,7 +27,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
 	/**
 	 * 根据索引获得超类的参数类型
-	 * 
+	 *
 	 * @param clazz
 	 *            超类类型
 	 * @param index
