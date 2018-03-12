@@ -4,10 +4,13 @@ import com.anyangdp.domain.dto.AbstractDTO;
 import com.anyangdp.handler.GenericResponse;
 import com.anyangdp.service.CRUDService;
 import com.anyangdp.service.CRUDServiceAware;
+import com.anyangdp.service.PageableService;
 import com.anyangdp.utils.ReflectionUtils;
 import lombok.Setter;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +23,7 @@ import java.util.List;
  * @param <DTO>
  * @param <S>
  */
-public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S extends CRUDService<ID, DTO>>
+public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S extends PageableService<ID, DTO>>
         implements CRUDServiceAware<S>, BeanFactoryAware {
 
     private Class<S> defaultServiceClass;
@@ -113,22 +116,34 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
 
     @GetMapping(value = "/listAll")
     public GenericResponse<List<DTO>> listAll() throws Exception {
-        return null;
+        return ControllerTemplate.call(response -> {
+            response.setResult(true);
+            response.setData(getService().listAllActive());
+        });
     }
 
     @GetMapping(value = "/list")
-    public GenericResponse<List<DTO>> list() throws Exception {
-        return null;
+    public GenericResponse<List<DTO>> list(@RequestBody @Valid DTO request) throws Exception {
+        return ControllerTemplate.call(response -> {
+            response.setData(getService().list(request));
+            response.setResult(true);
+        });
     }
 
     @GetMapping(value = "/list/{num}")
-    public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num) throws Exception {
-        return null;
+    public GenericResponse<Page<DTO>> list(@PathVariable(value = "num") Integer num) throws Exception {
+        return ControllerTemplate.call(response -> {
+            response.setData(getService().listActive(new PageRequest(num, 30)));
+            response.setResult(true);
+        });
     }
 
     @GetMapping(value = "/list/{num}/{page_size}")
-    public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num,
+    public GenericResponse<Page<DTO>> list(@PathVariable(value = "num") Integer num,
                                            @PathVariable(value = "page_size") Integer pageSize) throws Exception {
-        return null;
+        return ControllerTemplate.call(response -> {
+            response.setData(getService().listActive(new PageRequest(num, pageSize)));
+            response.setResult(true);
+        });
     }
 }

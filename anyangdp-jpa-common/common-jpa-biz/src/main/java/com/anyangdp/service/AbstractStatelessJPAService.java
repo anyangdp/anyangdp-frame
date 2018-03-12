@@ -173,7 +173,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     @Override
     public List<DTO> listAllActive() {
-        return null;
+        return dao.findAll().stream().map(entity -> ValueUtils.dump(entity, dtoClass)).collect(Collectors.toList());
     }
 
     /**
