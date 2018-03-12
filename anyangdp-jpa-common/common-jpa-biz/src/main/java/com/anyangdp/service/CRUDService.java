@@ -2,7 +2,7 @@ package com.anyangdp.service;
 
 public interface CRUDService<ID,DTO> {
 
-    DTO create(DTO dto);
+    DTO insert(DTO dto);
 
     DTO retrieve(ID id);
 

@@ -33,7 +33,7 @@ public abstract class AbstractService<ID extends Serializable, DTO extends Ident
     }
 
     @Override
-    public DTO create(DTO dto) {
+    public DTO insert(DTO dto) {
         return null;
     }
 

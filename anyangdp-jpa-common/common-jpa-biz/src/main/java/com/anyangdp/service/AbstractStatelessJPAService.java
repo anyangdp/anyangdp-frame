@@ -4,6 +4,7 @@ import com.anyangdp.dao.BaseDao;
 import com.anyangdp.domain.AbstractPersistableEntity;
 import com.anyangdp.utils.ReflectionUtils;
 import com.anyangdp.utils.ValueUtils;
+import com.sun.tracing.Probe;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -49,13 +50,25 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     }
 
     /**
+     * 条件查询单个实体
+     * @param condition
+     * @return
+     */
+    @Override
+    public DTO retrieveByCondition(DTO condition) {
+        ENTITY prob = ValueUtils.dump(condition, entityClass);
+        Example<ENTITY> example = Example.of(prob);
+        return ValueUtils.dump(dao.findOne(example),dtoClass);
+    }
+
+    /**
      * 添加
      *
      * @param dto
      * @return
      */
     @Override
-    public DTO create(DTO dto) {
+    public DTO insert(DTO dto) {
         ENTITY entity = ValueUtils.dump(dto, entityClass);
         dao.save(entity);
         return ValueUtils.dump(entity, dtoClass);
@@ -78,11 +91,21 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return true;
     }
 
+    /**
+     * 激活
+     * @param id
+     * @return
+     */
     @Override
     public boolean active(ID id) {
         return this.toggleActive(id, "1");
     }
 
+    /**
+     * 禁用
+     * @param id
+     * @return
+     */
     @Override
     public boolean deactive(ID id) {
         return this.toggleActive(id, "0");
@@ -99,6 +122,11 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return true;
     }
 
+    /**
+     * 逻辑删除
+     * @param id
+     * @return
+     */
     @Override
     public boolean delete(ID id) {
         if (!dao.exists(id)) {
@@ -114,6 +142,11 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return true;
     }
 
+    /**
+     * 判断是否存在
+     * @param condition
+     * @return
+     */
     @Override
     public boolean exists(DTO condition) {
         ENTITY entity = ValueUtils.dump(condition, entityClass);
@@ -143,16 +176,34 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return null;
     }
 
+    /**
+     * 分页全部数据查询
+     * @param pageable
+     * @return
+     */
     @Override
     public Page<DTO> listAll(Pageable pageable) {
-        return null;
+        return dao.findAll(pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
     }
 
+    /**
+     * 分页条件查询
+     * @param condition
+     * @param pageable
+     * @return
+     */
     @Override
     public Page<DTO> list(DTO condition, Pageable pageable) {
-        return null;
+        ENTITY probe = ValueUtils.dump(condition, entityClass);
+        Example example = Example.of(probe);
+        return dao.findAll(example,pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
     }
 
+    /**
+     * 列表查
+     * @param condition
+     * @return
+     */
     @Override
     public List<DTO> list(DTO condition) {
         ENTITY probe = ValueUtils.dump(condition, entityClass);

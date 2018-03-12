@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * 抽象controller类，完成基础crud
+ * @param <ID>
+ * @param <DTO>
+ * @param <S>
+ */
 public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S extends CRUDService<ID, DTO>>
         implements CRUDServiceAware<S>, BeanFactoryAware {
 
@@ -31,6 +37,12 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
         return beanFactory.getBean("default" + defaultServiceClass.getSimpleName(), defaultServiceClass);
     }
 
+    /**
+     * 根据主键id查询
+     * @param id
+     * @return
+     * @throws Exception
+     */
     @GetMapping(value = "/{id}")
     public GenericResponse<DTO> retrieve(@PathVariable("id") ID id) throws Exception {
         return ControllerTemplate.call((GenericResponse<DTO> response) -> {
@@ -40,32 +52,63 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
         });
     }
 
+    /**
+     * 添加数据
+     * @param request
+     * @param bindingResult
+     * @return
+     * @throws Exception
+     */
     @PostMapping
-    public GenericResponse<DTO> create(@RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
+    public GenericResponse<DTO> insert(@RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
         return ControllerTemplate.call(bindingResult, (GenericResponse<DTO> response) -> {
 
-            response.setData(getService().create(request));
+            response.setData(getService().insert(request));
             response.setResult(true);
         });
     }
 
+    /**
+     * 查询数据(实体对象查询)
+     * @param request
+     * @param bindingResult
+     * @return
+     * @throws Exception
+     */
     @PostMapping(value = "/find")
     public GenericResponse<DTO> retrieve(@RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
-        return null;
+        return ControllerTemplate.call(bindingResult, response -> {
+            response.setData(getService().retrieveByCondition(request));
+            response.setResult(true);
+        });
     }
 
+    /**
+     * 修改数据
+     * @param request
+     * @param bindingResult
+     * @return
+     * @throws Exception
+     */
     @PutMapping
     public GenericResponse<Void> update(@RequestBody @Valid DTO request, BindingResult bindingResult) throws
             Exception {
         return ControllerTemplate.call(bindingResult, (GenericResponse<Void> response) -> {
-
             response.setResult(getService().update(request));
         });
     }
 
+    /**
+     * 删除
+     * @param id
+     * @return
+     * @throws Exception
+     */
     @DeleteMapping(value = "/{id}")
-    public GenericResponse<Void> delete(@PathVariable("id") String id) throws Exception {
-        return null;
+    public GenericResponse<Void> delete(@PathVariable("id") ID id) throws Exception {
+        return ControllerTemplate.call(response ->
+            response.setResult(getService().delete(id))
+        );
     }
 
     @GetMapping(value = "/listAll")
