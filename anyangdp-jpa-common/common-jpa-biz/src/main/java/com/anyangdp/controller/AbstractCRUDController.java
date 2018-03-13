@@ -2,7 +2,7 @@ package com.anyangdp.controller;
 
 import com.anyangdp.domain.dto.AbstractDTO;
 import com.anyangdp.handler.GenericResponse;
-import com.anyangdp.service.CRUDService;
+import com.anyangdp.handler.PageDTO;
 import com.anyangdp.service.CRUDServiceAware;
 import com.anyangdp.service.PageableService;
 import com.anyangdp.utils.ReflectionUtils;
@@ -131,19 +131,60 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     }
 
     @GetMapping(value = "/list/{num}")
-    public GenericResponse<Page<DTO>> list(@PathVariable(value = "num") Integer num) throws Exception {
+    public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num) throws Exception {
         return ControllerTemplate.call(response -> {
-            response.setData(getService().listActive(new PageRequest(num, 30)));
+            Page<DTO> page = getService().listActive(new PageRequest(setAndGetPageNumber(num), setAndGetPageSize(0)));
+            response.setData(page.getContent());
+            response.setPage(getPageDTO(page));
             response.setResult(true);
         });
     }
 
     @GetMapping(value = "/list/{num}/{page_size}")
-    public GenericResponse<Page<DTO>> list(@PathVariable(value = "num") Integer num,
+    public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num,
                                            @PathVariable(value = "page_size") Integer pageSize) throws Exception {
         return ControllerTemplate.call(response -> {
-            response.setData(getService().listActive(new PageRequest(num, pageSize)));
+            Page<DTO> page = getService().listActive(new PageRequest(setAndGetPageNumber(num), setAndGetPageSize(pageSize)));
+            response.setData(page.getContent());
+            response.setPage(getPageDTO(page));
             response.setResult(true);
         });
+    }
+
+    int defaultPageSize() {
+        return 10;
+    }
+
+    protected int setAndGetPageSize(Integer pageSize) {
+        if (null == pageSize || 0 == pageSize) {
+            return defaultPageSize();
+        } else {
+            return pageSize;
+        }
+    }
+
+    int defaultPageNumber() {
+        return 0;
+    }
+
+    protected int setAndGetPageNumber(Integer pageNumber) {
+        if (null == pageNumber) {
+            return defaultPageNumber();
+        } else {
+            if (pageNumber > 0) {
+                return pageNumber - 1;
+            }
+            return pageNumber;
+        }
+    }
+
+    PageDTO getPageDTO(Page<DTO> page) {
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setSize(setAndGetPageSize(page.getSize()));
+        pageDTO.setNumber(page.getNumber()+1);
+        pageDTO.setTotalPages(page.getTotalPages());
+        pageDTO.setNumberOfElements(page.getNumberOfElements());
+        pageDTO.setTotalElements(page.getTotalElements());
+        return pageDTO;
     }
 }

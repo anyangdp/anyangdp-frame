@@ -4,7 +4,6 @@ import com.anyangdp.dao.BaseDao;
 import com.anyangdp.domain.AbstractPersistableEntity;
 import com.anyangdp.utils.ReflectionUtils;
 import com.anyangdp.utils.ValueUtils;
-import com.sun.tracing.Probe;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -162,6 +161,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
             probe.setEnabled("1");
             probe.setDeleted("0");
             Example example = Example.of(probe);
+            Page<ENTITY> vv = dao.findAll(example, pageable);
             data = dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
         } catch (InstantiationException e) {
             e.printStackTrace();
