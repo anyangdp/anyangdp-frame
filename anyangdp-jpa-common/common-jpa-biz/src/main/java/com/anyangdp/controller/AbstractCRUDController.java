@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -152,10 +151,10 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     }
 
     @GetMapping(value = "/page")
-    public GenericResponse<List<DTO>> page(Integer page,
+    public GenericResponse<List<DTO>> page(DTO request,Integer page,
                                             Integer rows) throws Exception {
         return ControllerTemplate.call(response -> {
-            Page<DTO> pageDTO = getService().listActive(new PageRequest(setAndGetPageNumber(page), setAndGetPageSize(rows)));
+            Page<DTO> pageDTO = getService().list(request,new PageRequest(setAndGetPageNumber(page), setAndGetPageSize(rows)));
             response.setData(pageDTO.getContent());
             response.setPage(getPageDTO(pageDTO));
             response.setResult(true);
