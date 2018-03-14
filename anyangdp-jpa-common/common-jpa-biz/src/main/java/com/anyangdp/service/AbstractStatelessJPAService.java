@@ -10,8 +10,18 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,8 +35,12 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     private Class<DAO> daoClass;
 
-    @Autowired
+//    @Autowired
     protected BaseDao<ENTITY, ID> dao;
+
+    Map<String, Field> relativeFields = new ConcurrentHashMap<>();
+
+    Map<String, BaseDao<? extends AbstractPersistableEntity<ID>, ID>> relativeDaos = new ConcurrentHashMap<>();
 
     AbstractStatelessJPAService() {
         super();
@@ -50,6 +64,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 条件查询单个实体
+     *
      * @param condition
      * @return
      */
@@ -57,7 +72,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     public DTO retrieveByCondition(DTO condition) {
         ENTITY prob = ValueUtils.dump(condition, entityClass);
         Example<ENTITY> example = Example.of(prob);
-        return ValueUtils.dump(dao.findOne(example),dtoClass);
+        return ValueUtils.dump(dao.findOne(example), dtoClass);
     }
 
     /**
@@ -82,7 +97,14 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     @Override
     public boolean update(DTO dto) {
         ENTITY entity = ValueUtils.dump(dto, entityClass);
-        if (exists(dto)) {
+        Field[] declaredFields = entity.getClass().getDeclaredFields();
+
+        for (Field field :
+                declaredFields) {
+            System.out.println(field.getName());
+
+        }
+        if (dao.exists((ID) dto.getId())) {
             dao.save(entity);
         } else {
             return false;
@@ -92,6 +114,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 激活
+     *
      * @param id
      * @return
      */
@@ -102,6 +125,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 禁用
+     *
      * @param id
      * @return
      */
@@ -123,6 +147,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 逻辑删除
+     *
      * @param id
      * @return
      */
@@ -143,6 +168,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 判断是否存在
+     *
      * @param condition
      * @return
      */
@@ -178,6 +204,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 分页全部数据查询
+     *
      * @param pageable
      * @return
      */
@@ -188,6 +215,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     /**
      * 分页条件查询
+     *
      * @param condition
      * @param pageable
      * @return
@@ -196,11 +224,12 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     public Page<DTO> list(DTO condition, Pageable pageable) {
         ENTITY probe = ValueUtils.dump(condition, entityClass);
         Example example = Example.of(probe);
-        return dao.findAll(example,pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
+        return dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
     }
 
     /**
      * 列表查
+     *
      * @param condition
      * @return
      */
@@ -210,4 +239,43 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         Example<ENTITY> example = Example.of(probe);
         return dao.findAll(example).stream().map(entity -> ValueUtils.dump(entity, dtoClass)).collect(Collectors.toList());
     }
+
+    @PostConstruct
+    private void assignmentDao() {
+        this.dao = beanFactory.getBean(daoClass);
+
+        for (Field field : entityClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class)) {
+
+                BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
+                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(decapitalize(field
+                        .getType().getSimpleName() + "Repository"));
+
+                relativeFields.put(field.getName(), field);
+                relativeDaos.put(field.getName(), relativeDao);
+            }
+
+            if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class)) {
+
+                String childEntityName = ((Class) (((ParameterizedType) field.getGenericType()).getActualTypeArguments()
+                        [0]))
+                        .getSimpleName();
+                BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
+                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(decapitalize(childEntityName + "Repository"));
+
+                relativeFields.put(field.getName(), field);
+                relativeDaos.put(field.getName(), relativeDao);
+            }
+        }
+    }
+
+    private static String decapitalize(String string) {
+        if (string == null || string.length() == 0) {
+            return string;
+        }
+        char c[] = string.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c);
+    }
+
 }
