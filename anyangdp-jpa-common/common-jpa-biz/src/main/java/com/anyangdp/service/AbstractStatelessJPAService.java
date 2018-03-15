@@ -7,6 +7,7 @@ import com.anyangdp.utils.ValueUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -39,6 +40,8 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     protected BaseDao<ENTITY, ID> dao;
 
     Map<String, Field> relativeFields = new ConcurrentHashMap<>();
+
+    final static ExampleMatcher DEFAULT_STRING_MATCHER = ExampleMatcher.matching().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
     Map<String, BaseDao<? extends AbstractPersistableEntity<ID>, ID>> relativeDaos = new ConcurrentHashMap<>();
 
@@ -187,7 +190,6 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
             probe.setEnabled("1");
             probe.setDeleted("0");
             Example example = Example.of(probe);
-            Page<ENTITY> vv = dao.findAll(example, pageable);
             data = dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -223,7 +225,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     @Override
     public Page<DTO> list(DTO condition, Pageable pageable) {
         ENTITY probe = ValueUtils.dump(condition, entityClass);
-        Example example = Example.of(probe);
+        Example example = Example.of(probe,DEFAULT_STRING_MATCHER);
         return dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
     }
 
