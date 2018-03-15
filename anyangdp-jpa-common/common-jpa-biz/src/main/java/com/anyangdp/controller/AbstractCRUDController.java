@@ -188,7 +188,7 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
         }
     }
 
-    PageDTO getPageDTO(Page<DTO> page) {
+    protected PageDTO getPageDTO(Page<DTO> page) {
         PageDTO pageDTO = new PageDTO();
         pageDTO.setSize(setAndGetPageSize(page.getSize()));
         pageDTO.setNumber(page.getNumber()+1);
