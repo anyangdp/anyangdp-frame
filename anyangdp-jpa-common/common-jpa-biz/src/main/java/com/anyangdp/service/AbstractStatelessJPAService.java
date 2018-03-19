@@ -11,16 +11,14 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +56,8 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     abstract protected void updateHandler(ENTITY target);
 
     abstract protected void deleteHandler(ENTITY target);
+
+    abstract protected void merge(ENTITY target, DTO dto);
 
     abstract protected void merge(ENTITY target);
 
@@ -107,15 +107,19 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      * @param dto
      * @return
      */
+    @Transactional
     @Override
     public boolean update(DTO dto) {
 //        ENTITY entity = ValueUtils.dump(dto, entityClass);
         if (dao.exists((ID) dto.getId())) {
             ENTITY target = dao.findOne((ID) dto.getId());
-            cleanup(target);
-            ValueUtils.dump(dto, target);
+//            cleanup(target);
+//            ValueUtils.dump(dto, target);
+//            updateHandler(target);
+//            merge(target);
+//            dao.save(target);
+            merge(target,dto);
             updateHandler(target);
-            merge(target);
             dao.save(target);
             return true;
         } else {
@@ -153,6 +157,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         }
         ENTITY entity = dao.findOne(id);
         entity.setEnabled(active);
+        dao.save(entity);
         return true;
     }
 
@@ -233,7 +238,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
     @Override
     public Page<DTO> list(DTO condition, Pageable pageable) {
         ENTITY probe = ValueUtils.dump(condition, entityClass);
-        Example example = Example.of(probe,DEFAULT_STRING_MATCHER);
+        Example example = Example.of(probe, DEFAULT_STRING_MATCHER);
         return dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
     }
 

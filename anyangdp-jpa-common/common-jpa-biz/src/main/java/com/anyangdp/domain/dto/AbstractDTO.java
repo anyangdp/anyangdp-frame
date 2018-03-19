@@ -19,8 +19,8 @@ public abstract class AbstractDTO<ID extends Serializable> implements Identifier
     private Integer createdBy;
     private Integer lastUpdatedBy;
     private Integer sort;
-    private String deleted = "0";
-    private String enabled = "1";
+    private String deleted;
+    private String enabled;
     private Timestamp lastUpdatedDate;
 
 }

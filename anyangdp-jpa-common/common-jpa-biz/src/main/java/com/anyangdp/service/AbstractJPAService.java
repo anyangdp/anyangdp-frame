@@ -7,8 +7,13 @@ import com.anyangdp.utils.ValueUtils;
 import org.springframework.util.CollectionUtils;
 
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
@@ -22,6 +27,7 @@ public abstract class AbstractJPAService<ID extends Serializable, DTO extends Id
     protected void deleteHandler(ENTITY target) {
         target.setDeleted("1");
         target.setLastUpdatedDate(new Timestamp(new Date().getTime()));
+        dao.save(target);
     }
 
     @Override
@@ -35,7 +41,7 @@ public abstract class AbstractJPAService<ID extends Serializable, DTO extends Id
 
     @Override
     protected void updateHandler(ENTITY target) {
-        target.setLastUpdatedBy(2);
+        target.setLastUpdatedDate(new Timestamp(new Date().getTime()));
     }
 
     @Override
@@ -141,6 +147,39 @@ public abstract class AbstractJPAService<ID extends Serializable, DTO extends Id
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void merge(ENTITY target, DTO dto) {
+        Class clazz = dtoClass;
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(Transient.class)) {
+                Method[] methods = clazz.getMethods();
+                inner:
+                for (Method method : methods) {
+                    if (method.getName().contains("get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1))) {
+                        System.out.println(method.getName());
+                        try {
+                            Object value = method.invoke(dto);
+                            if (value != null) {
+                                PropertyDescriptor propertyDescriptor = new PropertyDescriptor(method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4), entityClass);
+                                Method gg = propertyDescriptor.getWriteMethod();
+                                System.out.println(gg);
+                                gg.invoke(target, value);
+                            }
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        } catch (IntrospectionException e) {
+                            e.printStackTrace();
+                        }
+                        break inner;
+                    }
                 }
             }
         }

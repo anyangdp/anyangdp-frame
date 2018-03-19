@@ -26,13 +26,13 @@ public abstract class AbstractPersistableEntity<ID extends Serializable> impleme
 
     private Integer sort;
 
-    @Column(columnDefinition = "char(1)", updatable = false)
+    @Column(columnDefinition = "char(1)")
     private String deleted;
 
-    @Column(columnDefinition = "char(1)", updatable = false)
+    @Column(columnDefinition = "char(1)")
     private String enabled;
 
-    @Column(insertable = false, updatable = false)
+    @Column(insertable = false)
     private Timestamp lastUpdatedDate;
 
     public abstract void setId(ID id);
