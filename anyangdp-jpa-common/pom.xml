@@ -40,6 +40,10 @@
         <jackson-datatype-jsr310.version>2.8.7</jackson-datatype-jsr310.version>
         <springfox-swagger-ui.version>2.2.2</springfox-swagger-ui.version>
         <springfox-swagger2.version>2.2.2</springfox-swagger2.version>
+        <fastjson.version>1.2.46</fastjson.version>
+        <reflectasm.version>1.11.3</reflectasm.version>
+        <dozer.version>5.5.1</dozer.version>
+        <dozer-jdk8-support.version>1.0.2</dozer-jdk8-support.version>
     </properties>
 
     <dependencyManagement>
@@ -116,6 +120,36 @@
                 <version>${springfox-swagger2.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.esotericsoftware</groupId>
+                <artifactId>reflectasm</artifactId>
+                <version>${reflectasm.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.dozer</groupId>
+                <artifactId>dozer</artifactId>
+                <version>${dozer.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.craftsman</groupId>
+                <artifactId>dozer-jdk8-support</artifactId>
+                <version>${dozer-jdk8-support.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hashids</groupId>
+                <artifactId>hashids</artifactId>
+                <version>1.0.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

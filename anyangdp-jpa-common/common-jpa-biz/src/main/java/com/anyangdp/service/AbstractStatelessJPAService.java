@@ -5,6 +5,7 @@ import com.anyangdp.domain.AbstractPersistableEntity;
 import com.anyangdp.utils.ReflectionUtils;
 import com.anyangdp.utils.ValueUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -20,8 +21,8 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,6 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     private Class<DAO> daoClass;
 
-//    @Autowired
     protected BaseDao<ENTITY, ID> dao;
 
     Map<String, Field> relativeFields = new ConcurrentHashMap<>();
@@ -51,7 +51,17 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         daoClass = ReflectionUtils.getClassGenricType(getClass(), 3);
     }
 
+    abstract protected void createHandler(ENTITY target);
+
+    abstract protected void afterCreateHandler(ENTITY target);
+
+    abstract protected void updateHandler(ENTITY target);
+
     abstract protected void deleteHandler(ENTITY target);
+
+    abstract protected void merge(ENTITY target);
+
+    abstract protected void cleanup(ENTITY target);
 
     /**
      * id查询
@@ -99,20 +109,18 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      */
     @Override
     public boolean update(DTO dto) {
-        ENTITY entity = ValueUtils.dump(dto, entityClass);
-        Field[] declaredFields = entity.getClass().getDeclaredFields();
-
-        for (Field field :
-                declaredFields) {
-            System.out.println(field.getName());
-
-        }
+//        ENTITY entity = ValueUtils.dump(dto, entityClass);
         if (dao.exists((ID) dto.getId())) {
-            dao.save(entity);
+            ENTITY target = dao.findOne((ID) dto.getId());
+            cleanup(target);
+            ValueUtils.dump(dto, target);
+            updateHandler(target);
+            merge(target);
+            dao.save(target);
+            return true;
         } else {
             return false;
         }
-        return true;
     }
 
     /**

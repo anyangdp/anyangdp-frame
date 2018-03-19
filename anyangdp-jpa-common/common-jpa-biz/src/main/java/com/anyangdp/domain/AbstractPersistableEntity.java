@@ -2,6 +2,7 @@ package com.anyangdp.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.Column;
@@ -17,13 +18,20 @@ public abstract class AbstractPersistableEntity<ID extends Serializable> impleme
 
     @Column(insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp creationDate;
+
+    @Column(updatable = false)
     private Integer createdBy;
+
     private Integer lastUpdatedBy;
+
     private Integer sort;
-    @Column(columnDefinition = "char(1)")
+
+    @Column(columnDefinition = "char(1)", updatable = false)
     private String deleted;
-    @Column(columnDefinition = "char(1)")
+
+    @Column(columnDefinition = "char(1)", updatable = false)
     private String enabled;
+
     @Column(insertable = false, updatable = false)
     private Timestamp lastUpdatedDate;
 
