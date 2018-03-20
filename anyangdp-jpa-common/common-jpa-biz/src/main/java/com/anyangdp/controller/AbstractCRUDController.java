@@ -11,6 +11,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +50,6 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     @GetMapping(value = "/{id}")
     public GenericResponse<DTO> retrieve(@PathVariable("id") ID id) throws Exception {
         return ControllerTemplate.call((GenericResponse<DTO> response) -> {
-
             response.setData(getService().retrieve(id));
             response.setResult(true);
         });
@@ -80,6 +80,7 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     @PostMapping(value = "/find")
     public GenericResponse<DTO> retrieve(@RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
         return ControllerTemplate.call(bindingResult, response -> {
+            setDefaultStatus(request);
             response.setData(getService().retrieveByCondition(request));
             response.setResult(true);
         });
@@ -124,6 +125,7 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     @GetMapping(value = "/list")
     public GenericResponse<List<DTO>> list(@RequestBody @Valid DTO request) throws Exception {
         return ControllerTemplate.call(response -> {
+            setDefaultStatus(request);
             response.setData(getService().list(request));
             response.setResult(true);
         });
@@ -154,11 +156,23 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
     public GenericResponse<List<DTO>> page(DTO request,Integer page,
                                             Integer rows) throws Exception {
         return ControllerTemplate.call(response -> {
+            setDefaultStatus(request);
             Page<DTO> pageDTO = getService().list(request,new PageRequest(setAndGetPageNumber(page), setAndGetPageSize(rows)));
             response.setData(pageDTO.getContent());
             response.setPage(getPageDTO(pageDTO));
             response.setResult(true);
         });
+    }
+
+    private void setDefaultStatus(DTO request) {
+        if (null != request) {
+            if (StringUtils.isEmpty(request.getDeleted())) {
+                request.setDeleted("0");
+            }
+            if (StringUtils.isEmpty(request.getEnabled())) {
+                request.setDeleted("1");
+            }
+        }
     }
 
     int defaultPageSize() {
