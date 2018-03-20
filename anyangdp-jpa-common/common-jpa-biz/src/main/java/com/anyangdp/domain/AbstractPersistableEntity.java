@@ -26,10 +26,10 @@ public abstract class AbstractPersistableEntity<ID extends Serializable> impleme
 
     private Integer sort;
 
-    @Column(columnDefinition = "char(1)")
+    @Column(columnDefinition = "char(1)",insertable = false)
     private String deleted;
 
-    @Column(columnDefinition = "char(1)")
+    @Column(columnDefinition = "char(1)",insertable = false)
     private String enabled;
 
     @Column(insertable = false)
