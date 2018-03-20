@@ -170,7 +170,7 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
                 request.setDeleted("0");
             }
             if (StringUtils.isEmpty(request.getEnabled())) {
-                request.setDeleted("1");
+                request.setEnabled("1");
             }
         }
     }
