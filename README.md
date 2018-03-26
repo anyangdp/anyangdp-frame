@@ -61,7 +61,6 @@ public interface ConsoleUserService extends PageableService<Integer,UserDTO> {
 ```
 @Log4j
 @Service
-@Transactional
 public class UserServiceImpl extends AbstractStatelessService<Integer,UserDTO, User, UserMapper>
         implements UserService {
 
