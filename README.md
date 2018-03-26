@@ -86,3 +86,6 @@ EqualsAndHashCode(callSuper = true)
 public class UserDTO extends AbstractDTO {
 }
 ```
+
+
+感谢kerry，ice，william等对我的帮助。
