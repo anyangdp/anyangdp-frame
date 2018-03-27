@@ -107,9 +107,6 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return ValueUtils.dump(entity, dtoClass);
     }
 
-    @Autowired
-    private LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy;
-
     /**
      * 修改
      *
