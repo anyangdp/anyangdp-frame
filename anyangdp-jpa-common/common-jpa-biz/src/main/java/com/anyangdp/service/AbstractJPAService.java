@@ -162,13 +162,11 @@ public abstract class AbstractJPAService<ID extends Serializable, DTO extends Id
                 inner:
                 for (Method method : methods) {
                     if (method.getName().contains("get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1))) {
-                        System.out.println(method.getName());
                         try {
                             Object value = method.invoke(dto);
                             if (value != null) {
                                 PropertyDescriptor propertyDescriptor = new PropertyDescriptor(method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4), entityClass);
                                 Method gg = propertyDescriptor.getWriteMethod();
-                                System.out.println(gg);
                                 gg.invoke(target, value);
                             }
                         } catch (IllegalAccessException e) {

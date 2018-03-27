@@ -1,26 +1,31 @@
 package com.anyangdp.service;
 
+import com.anyangdp.config.mutiDataSource.DataSourceContextHolder;
+import com.anyangdp.config.mutiDataSource.DataSourceType;
 import com.anyangdp.dao.BaseDao;
 import com.anyangdp.domain.AbstractPersistableEntity;
 import com.anyangdp.utils.ReflectionUtils;
 import com.anyangdp.utils.ValueUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.*;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
-import java.lang.reflect.*;
-import java.sql.Timestamp;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -63,6 +68,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     abstract protected void cleanup(ENTITY target);
 
+
     /**
      * id查询
      *
@@ -101,13 +107,16 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         return ValueUtils.dump(entity, dtoClass);
     }
 
+    @Autowired
+    private LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy;
+
     /**
      * 修改
      *
      * @param dto
      * @return
      */
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public boolean update(DTO dto) {
 //        ENTITY entity = ValueUtils.dump(dto, entityClass);
@@ -117,9 +126,10 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 //            ValueUtils.dump(dto, target);
 //            updateHandler(target);
 //            merge(target);
-//            dao.save(target);
-            merge(target,dto);
+
+            merge(target, dto);
             updateHandler(target);
+            DataSourceContextHolder.setDataSourceType(DataSourceType.MASTER);
             dao.save(target);
             return true;
         } else {
@@ -155,10 +165,14 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
             log.warn("entity not found --- id : {} ", id);
             return false;
         }
-        ENTITY entity = dao.findOne(id);
+        ENTITY entity = this.findOne(id);
         entity.setEnabled(active);
         dao.save(entity);
         return true;
+    }
+
+    private ENTITY findOne(ID id) {
+        return dao.findOne(id);
     }
 
     /**
@@ -263,7 +277,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
             if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class)) {
 
                 BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
-                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(decapitalize(field
+                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(deCapitalize(field
                         .getType().getSimpleName() + "Repository"));
 
                 relativeFields.put(field.getName(), field);
@@ -276,7 +290,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
                         [0]))
                         .getSimpleName();
                 BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
-                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(decapitalize(childEntityName + "Repository"));
+                        AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(deCapitalize(childEntityName + "Repository"));
 
                 relativeFields.put(field.getName(), field);
                 relativeDaos.put(field.getName(), relativeDao);
@@ -284,7 +298,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         }
     }
 
-    private static String decapitalize(String string) {
+    private static String deCapitalize(String string) {
         if (string == null || string.length() == 0) {
             return string;
         }
