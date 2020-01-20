@@ -1,7 +1,7 @@
 package com.anyangdp.service;
 
 
-import com.anyangdp.dao.BaseDao;
+import com.anyangdp.dao.BaseRepository;
 import com.anyangdp.domain.AbstractPersistableEntity;
 import com.anyangdp.utils.ValueUtils;
 import org.springframework.util.CollectionUtils;
@@ -15,18 +15,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AbstractJPAService<ID extends Serializable, DTO extends IdentifierAwareDTO, ENTITY extends AbstractPersistableEntity<ID>, DAO extends BaseDao<ENTITY, ID>>
+public abstract class AbstractJPAService<ID extends Serializable, DTO extends IdentifierAwareDTO, ENTITY extends AbstractPersistableEntity<ID>, DAO extends BaseRepository<ENTITY, ID>>
         extends AbstractStatelessJPAService<ID, DTO, ENTITY, DAO> {
 
     @Override
     protected void deleteHandler(ENTITY target) {
         target.setDeleted("1");
-        target.setLastUpdatedDate(new Timestamp(new Date().getTime()));
+        target.setLastUpdatedDate(LocalDateTime.now());
         dao.save(target);
     }
 
@@ -41,7 +42,7 @@ public abstract class AbstractJPAService<ID extends Serializable, DTO extends Id
 
     @Override
     protected void updateHandler(ENTITY target) {
-        target.setLastUpdatedDate(new Timestamp(new Date().getTime()));
+        target.setLastUpdatedDate(LocalDateTime.now());
     }
 
     @Override

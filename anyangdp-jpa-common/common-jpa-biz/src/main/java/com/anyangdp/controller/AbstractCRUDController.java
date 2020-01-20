@@ -1,6 +1,9 @@
 package com.anyangdp.controller;
 
+import com.anyangdp.dao.RangeQuery;
+import com.anyangdp.dao.SearchQuery;
 import com.anyangdp.domain.dto.AbstractDTO;
+import com.anyangdp.handler.GenericHandler;
 import com.anyangdp.handler.GenericResponse;
 import com.anyangdp.handler.PageDTO;
 import com.anyangdp.service.CRUDServiceAware;
@@ -16,6 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,7 +29,7 @@ import java.util.List;
  * @param <DTO>
  * @param <S>
  */
-public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S extends PageableService<ID, DTO>>
+public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S extends PageableService<ID, DTO>> extends GenericHandler
         implements CRUDServiceAware<S>, BeanFactoryAware {
 
     private Class<S> defaultServiceClass;
@@ -133,35 +138,78 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
 
     @GetMapping(value = "/list/{num}")
     public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num) throws Exception {
-        return ControllerTemplate.call(response -> {
-            Page<DTO> page = getService().listActive(new PageRequest(setAndGetPageNumber(num), setAndGetPageSize(0)));
-            response.setData(page.getContent());
-            response.setPage(getPageDTO(page));
-            response.setResult(true);
-        });
+        return internalQuery(num,null,null);
     }
 
     @GetMapping(value = "/list/{num}/{page_size}")
     public GenericResponse<List<DTO>> list(@PathVariable(value = "num") Integer num,
                                            @PathVariable(value = "page_size") Integer pageSize) throws Exception {
-        return ControllerTemplate.call(response -> {
-            Page<DTO> page = getService().listActive(new PageRequest(setAndGetPageNumber(num), setAndGetPageSize(pageSize)));
-            response.setData(page.getContent());
-            response.setPage(getPageDTO(page));
-            response.setResult(true);
-        });
+        return internalQuery(num, pageSize, listBefore(null));
     }
 
     @GetMapping(value = "/page")
     public GenericResponse<List<DTO>> page(DTO request,Integer page,
                                             Integer rows) throws Exception {
-        return ControllerTemplate.call(response -> {
-            setDefaultStatus(request);
-            Page<DTO> pageDTO = getService().list(request,new PageRequest(setAndGetPageNumber(page), setAndGetPageSize(rows)));
-            response.setData(pageDTO.getContent());
-            response.setPage(getPageDTO(pageDTO));
-            response.setResult(true);
+        setDefaultStatus(request);
+        return internalQuery(page, rows, listBefore(null));
+    }
+
+    @PostMapping(value = "/search")
+    public GenericResponse<List<DTO>> query(@RequestBody @Valid DTO request, BindingResult bindingResult) throws
+            Exception {
+
+        return query(null, null, request, bindingResult);
+    }
+
+
+    @PostMapping(value = "/search/{num}")
+    public GenericResponse<List<DTO>> query(@PathVariable(value = "num") Integer num,
+                                          @RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
+        setDefaultStatus(request);
+        return query(num, null, request, bindingResult);
+    }
+
+
+    @PostMapping(value = "/search/{num}/{page_size}")
+    public GenericResponse<List<DTO>> query(@PathVariable(value = "num") Integer num,
+                                          @PathVariable(value = "page_size") Integer pageSize,
+                                          @RequestBody @Valid DTO request, BindingResult bindingResult) throws Exception {
+        setDefaultStatus(request);
+        return internalQuery(num, pageSize, listBefore(request));
+    }
+
+
+    private GenericResponse<List<DTO>> internalQuery(Integer pageNumber, Integer pageSize, DTO request) throws Exception {
+
+        return ControllerTemplate.call((GenericResponse<List<DTO>> response) -> {
+
+            PageRequest pr = new PageRequest(setAndGetPageNumber(pageNumber), setAndGetPageSize(pageSize));
+            PageableService service = (PageableService) getService();
+
+//            List<RangeQuery> rangeQueries = new ArrayList<>();
+//            RangeQuery rangeQuery = new RangeQuery("creationDate", null, new Date(), false);
+//            rangeQueries.add(rangeQuery);
+//            request.setRangeQuerys(rangeQueries);
+//            RangeQuery aa = (RangeQuery) request.getRangeQuerys().get(0);
+//            aa.setUpperBound(new Date());
+
+            Page<DTO> data;
+            if (request != null) {
+                if (request.getLikeQuery() != null) {
+                    data = service.list(request, request.getRangeQuerys(), request.getLikeQuery(), pr);
+                } else {
+                    data = service.list(request, request.getRangeQuerys(), request.getSearchQuery(), pr);
+                }
+            } else {
+                data = service.listActive(pr);
+            }
+
+            extractResponse(response, data);
         });
+    }
+
+    protected DTO listBefore(DTO dto) {
+        return dto;
     }
 
     private void setDefaultStatus(DTO request) {
@@ -175,40 +223,5 @@ public abstract class AbstractCRUDController<ID, DTO extends AbstractDTO, S exte
         }
     }
 
-    int defaultPageSize() {
-        return 10;
-    }
 
-    protected int setAndGetPageSize(Integer pageSize) {
-        if (null == pageSize || 0 == pageSize) {
-            return defaultPageSize();
-        } else {
-            return pageSize;
-        }
-    }
-
-    int defaultPageNumber() {
-        return 0;
-    }
-
-    protected int setAndGetPageNumber(Integer pageNumber) {
-        if (null == pageNumber) {
-            return defaultPageNumber();
-        } else {
-            if (pageNumber > 0) {
-                return pageNumber - 1;
-            }
-            return pageNumber;
-        }
-    }
-
-    protected PageDTO getPageDTO(Page<DTO> page) {
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setSize(setAndGetPageSize(page.getSize()));
-        pageDTO.setNumber(page.getNumber()+1);
-        pageDTO.setTotalPages(page.getTotalPages());
-        pageDTO.setNumberOfElements(page.getNumberOfElements());
-        pageDTO.setTotalElements(page.getTotalElements());
-        return pageDTO;
-    }
 }

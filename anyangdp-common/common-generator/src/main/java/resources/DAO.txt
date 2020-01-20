@@ -1,0 +1,9 @@
+package ${package}.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import ${package}.domain.dobj.${className}DO;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ${className}Mapper extends BaseMapper<${className}DO>{
+}

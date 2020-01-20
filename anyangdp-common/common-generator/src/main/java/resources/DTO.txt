@@ -1,0 +1,27 @@
+package ${package}.domain.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hxb.common.framework.handler.AbstractDTO;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import java.time.LocalDateTime;
+
+/**
+ * ${tableComment}
+ */
+@Accessors(chain = true)
+@Data
+public class ${className}DTO extends AbstractDTO {
+
+    <% for(f in fields){
+        if("id" == f.field) continue; %>
+    // ${f.comment}
+        <% if(f.type == "Date") { %>
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime ${f.field};
+        <% } else { %>
+    private ${f.type} ${f.field};
+        <% } %>
+    <% } %>
+
+}

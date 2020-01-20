@@ -2,17 +2,19 @@ package com.anyangdp.service;
 
 import com.anyangdp.config.mutiDataSource.DataSourceContextHolder;
 import com.anyangdp.config.mutiDataSource.DataSourceType;
-import com.anyangdp.dao.BaseDao;
+import com.anyangdp.dao.BaseRepository;
+import com.anyangdp.dao.LikeQuery;
+import com.anyangdp.dao.RangeQuery;
+import com.anyangdp.dao.SearchQuery;
 import com.anyangdp.domain.AbstractPersistableEntity;
+import com.anyangdp.utils.DozerUtils;
 import com.anyangdp.utils.ReflectionUtils;
 import com.anyangdp.utils.ValueUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,20 +35,20 @@ import java.util.stream.Collectors;
 public abstract class AbstractStatelessJPAService<ID extends Serializable,
         DTO extends IdentifierAwareDTO,
         ENTITY extends AbstractPersistableEntity<ID>,
-        DAO extends BaseDao<ENTITY, ID>>
+        DAO extends BaseRepository<ENTITY, ID>>
         extends AbstractService<ID, DTO> implements PageableService<ID, DTO> {
 
     protected Class<ENTITY> entityClass;
 
     private Class<DAO> daoClass;
 
-    protected BaseDao<ENTITY, ID> dao;
+    protected BaseRepository<ENTITY, ID> dao;
 
     Map<String, Field> relativeFields = new ConcurrentHashMap<>();
 
-    final static ExampleMatcher DEFAULT_STRING_MATCHER = ExampleMatcher.matching().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+    final static ExampleMatcher DEFAULT_STRING_MATCHER = ExampleMatcher.matching();
 
-    Map<String, BaseDao<? extends AbstractPersistableEntity<ID>, ID>> relativeDaos = new ConcurrentHashMap<>();
+    Map<String, BaseRepository<? extends AbstractPersistableEntity<ID>, ID>> relativeDaos = new ConcurrentHashMap<>();
 
     AbstractStatelessJPAService() {
         super();
@@ -201,7 +203,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      */
     @Override
     public boolean exists(DTO condition) {
-        ENTITY entity = ValueUtils.dump(condition, entityClass);
+        ENTITY entity = DozerUtils.dump(condition, entityClass);
         Example<ENTITY> example = Example.of(entity);
         return dao.exists(example);
     }
@@ -214,7 +216,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
             probe.setEnabled("1");
             probe.setDeleted("0");
             Example example = Example.of(probe);
-            data = dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
+            data = dao.findAll(example, pageable).map(entity -> DozerUtils.dump(entity, dtoClass));
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -225,7 +227,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
 
     @Override
     public List<DTO> listAllActive() {
-        return dao.findAll().stream().map(entity -> ValueUtils.dump(entity, dtoClass)).collect(Collectors.toList());
+        return dao.findAll().stream().map(entity -> DozerUtils.dump(entity, dtoClass)).collect(Collectors.toList());
     }
 
     /**
@@ -236,7 +238,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      */
     @Override
     public Page<DTO> listAll(Pageable pageable) {
-        return dao.findAll(pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
+        return dao.findAll(pageable).map(entity -> DozerUtils.dump(entity, dtoClass));
     }
 
     /**
@@ -248,9 +250,9 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      */
     @Override
     public Page<DTO> list(DTO condition, Pageable pageable) {
-        ENTITY probe = ValueUtils.dump(condition, entityClass);
+        ENTITY probe = DozerUtils.dump(condition, entityClass);
         Example example = Example.of(probe, DEFAULT_STRING_MATCHER);
-        return dao.findAll(example, pageable).map(entity -> ValueUtils.dump(entity, dtoClass));
+        return dao.findAll(example, pageable).map(entity -> DozerUtils.dump(entity, dtoClass));
     }
 
     /**
@@ -261,9 +263,37 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
      */
     @Override
     public List<DTO> list(DTO condition) {
-        ENTITY probe = ValueUtils.dump(condition, entityClass);
+        ENTITY probe = DozerUtils.dump(condition, entityClass);
         Example<ENTITY> example = Example.of(probe);
-        return dao.findAll(example).stream().map(entity -> ValueUtils.dump(entity, dtoClass)).collect(Collectors.toList());
+        List<ENTITY> list = dao.findAll(example);
+
+        if (list != null && list.size() > 0) {
+            List<DTO> data = list.stream().map(entity -> DozerUtils.dump(entity, dtoClass)).collect(Collectors.toList());
+            return data;
+        }
+        return null;
+    }
+
+    @Override
+    public Page<DTO> list(DTO condition, List<RangeQuery> ranges, SearchQuery searchQuery, Pageable pageable) {
+        ENTITY prob = DozerUtils.dump(condition, entityClass);
+        Example<ENTITY> example = Example.of(prob, DEFAULT_STRING_MATCHER);
+        Page<DTO> data = dao.findAll(example, ranges,searchQuery, pageable).map(entity -> DozerUtils.dump(entity, dtoClass));
+        return data;
+    }
+
+    @Override
+    public Page<DTO> list(DTO condition, List<RangeQuery> ranges, LikeQuery likeQuery, Pageable pageable) {
+        ENTITY prob = DozerUtils.dump(condition, entityClass);
+        Page<DTO> data = dao.findAll(prob, ranges,likeQuery, pageable).map(entity -> DozerUtils.dump(entity, dtoClass));
+        return data;
+    }
+
+    @Override
+    public long count(DTO condition) {
+        ENTITY prob = DozerUtils.dump(condition, entityClass);
+        Example<ENTITY> example = Example.of(prob, DEFAULT_STRING_MATCHER);
+        return dao.count(example);
     }
 
     @PostConstruct
@@ -273,7 +303,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class)) {
 
-                BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
+                BaseRepository<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseRepository<? extends
                         AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(deCapitalize(field
                         .getType().getSimpleName() + "Repository"));
 
@@ -286,7 +316,7 @@ public abstract class AbstractStatelessJPAService<ID extends Serializable,
                 String childEntityName = ((Class) (((ParameterizedType) field.getGenericType()).getActualTypeArguments()
                         [0]))
                         .getSimpleName();
-                BaseDao<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseDao<? extends
+                BaseRepository<? extends AbstractPersistableEntity<ID>, ID> relativeDao = (BaseRepository<? extends
                         AbstractPersistableEntity<ID>, ID>) beanFactory.getBean(deCapitalize(childEntityName + "Repository"));
 
                 relativeFields.put(field.getName(), field);

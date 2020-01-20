@@ -1,0 +1,13 @@
+package ${package}.controller;
+
+import com.hxb.common.framework.handler.AbstractCRUDHandler;
+import com.zy.point.domain.dto.${className}DTO;
+import ${package}.service.${className}Service;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RestController
+@RequestMapping("/${classNameSmall}")
+public class ${className}Controller extends AbstractCRUDHandler<Long, ${className}DTO, ${className}Service> {
+
+}

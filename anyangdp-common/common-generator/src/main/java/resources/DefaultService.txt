@@ -1,0 +1,24 @@
+package ${package}.service.impl;
+
+import com.hxb.common.framework.service.AbstractService;
+import ${package}.domain.dobj.${className}DO;
+import ${package}.domain.dto.${className}DTO;
+import ${package}.mapper.${className}Mapper;
+import ${package}.service.${className}Service;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+@Service
+@Transactional
+public class ${className}ServiceImpl extends AbstractService<${className}DTO, ${className}Mapper, ${className}DO> implements ${className}Service {
+
+    @Resource
+    private ${className}Mapper ${classNameSmall}Mapper;
+
+}

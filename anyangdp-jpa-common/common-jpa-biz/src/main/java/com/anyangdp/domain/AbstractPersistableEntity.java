@@ -10,6 +10,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -17,9 +18,9 @@ import java.sql.Timestamp;
 public abstract class AbstractPersistableEntity<ID extends Serializable> implements Persistable<ID> {
 
     @Column(insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp creationDate;
+    private LocalDateTime creationDate;
 
-    @Column(updatable = false)
+    @Column(insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Integer createdBy;
 
     private Integer lastUpdatedBy;
@@ -32,8 +33,8 @@ public abstract class AbstractPersistableEntity<ID extends Serializable> impleme
     @Column(columnDefinition = "char(1)",insertable = false)
     private String enabled;
 
-    @Column(insertable = false)
-    private Timestamp lastUpdatedDate;
+    @Column(insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime lastUpdatedDate;
 
     public abstract void setId(ID id);
 
