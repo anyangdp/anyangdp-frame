@@ -30,17 +30,17 @@
     </appender>
 
     <!--日志异步到数据库 -->
-    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
-        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
-            <dataSource class="com.zaxxer.hikari.HikariDataSource">
-                <driverClassName>com.mysql.jdbc.Driver</driverClassName>
-                <jdbcUrl>jdbc:mysql://localhost:3306/logs?characterEncoding=utf-8&amp;useSSL=false</jdbcUrl>
-                <username>root</username>
-                <!-- 数据库密码 -->
-                <password>123456</password>
-            </dataSource>
-        </connectionSource>
-    </appender>
+<!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
+<!--        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">-->
+<!--            <dataSource class="com.zaxxer.hikari.HikariDataSource">-->
+<!--                <driverClassName>com.mysql.jdbc.Driver</driverClassName>-->
+<!--                <jdbcUrl>jdbc:mysql://localhost:3306/logs?characterEncoding=utf-8&amp;useSSL=false</jdbcUrl>-->
+<!--                <username>root</username>-->
+<!--                &lt;!&ndash; 数据库密码 &ndash;&gt;-->
+<!--                <password>Pyt*say*cy1</password>-->
+<!--            </dataSource>-->
+<!--        </connectionSource>-->
+<!--    </appender>-->
 
     <!-- 环境，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
     <springProfile name="dev">

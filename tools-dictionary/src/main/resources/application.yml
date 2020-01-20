@@ -1,7 +1,7 @@
 spring:
   profiles: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/ws_tools?useSSL=false&useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
     username: root
     password: Pyt*say*cy1
@@ -11,7 +11,7 @@ spring:
 server:
   port: 9100
   servlet:
-    context-path: /zy/point
+    context-path: /ws/tools
 management:
   endpoints:
     web:
@@ -24,7 +24,7 @@ management:
       enabled: true
 eureka:
   instance:
-    hostname: zy-point
+    hostname: ws-tools
     prefer-ip-address: true
   client:
     serviceUrl:
@@ -45,17 +45,17 @@ mybatis-plus:
 spring:
   profiles: staging
   datasource:
-    url: jdbc:mysql://47.103.43.77:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/ws_tools?useSSL=false&useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
     username: root
-    password: DB20191217!
+    password: Pyt*say*cy1
   jpa:
     hibernate:
       ddl-auto: none
 server:
   port: 9100
   servlet:
-    context-path: /zy/point
+    context-path: /ws/tools
 management:
   endpoints:
     web:
@@ -68,11 +68,11 @@ management:
       enabled: true
 eureka:
   instance:
-    hostname: zy-point
+    hostname: ws-tools
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://47.103.43.77:8762/eureka/
+      defaultZone: http://localhost:8762/eureka/
 # mybatis-plus
 mybatis-plus:
   configuration:
@@ -89,17 +89,17 @@ mybatis-plus:
 spring:
   profiles: prod
   datasource:
-    url: jdbc:mysql://47.103.43.77:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/ws_tools?useSSL=false&useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
     username: root
-    password: DB20191217!
+    password: Pyt*say*cy1
     jpa:
       hibernate:
         ddl-auto: none
 server:
   port: 9100
   servlet:
-    context-path: /zy/point
+    context-path: /ws/tools
 management:
   endpoints:
     web:
@@ -112,7 +112,7 @@ management:
       enabled: true
 eureka:
   instance:
-    hostname: zy-point
+    hostname: ws-tools
     #    ip-address: 127.0.0.1
     prefer-ip-address: true
   #    non-secure-port: 8761
@@ -120,7 +120,7 @@ eureka:
     #    registerWithEureka: false
     #    fetchRegistry: false
     serviceUrl:
-      defaultZone: http://47.103.43.77:8762/eureka/
+      defaultZone: http://localhost:8762/eureka/
 # mybatis-plus
 mybatis-plus:
   configuration:
