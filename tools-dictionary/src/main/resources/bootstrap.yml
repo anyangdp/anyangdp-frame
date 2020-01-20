@@ -1,0 +1,44 @@
+spring:
+  profiles: dev
+  application:
+    name: zy-point
+logger:
+  path: /Users/say/Documents/zy-gitlab/zy-hxb/hxb-cloud/zy-point
+  file: com.anyangdp.tools
+  pattern: ===%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L - %msg%n
+  charset: utf-8
+  maxFile: 100MB
+  max:
+    file:
+      size: 100MB
+    history: 30
+---
+spring:
+  profiles: staging
+  application:
+    name: zy-point
+logger:
+  path: /tmp/logs/${spring.application.name}
+  file: com.anyangdp.tools
+  pattern: ===%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L - %msg%n
+  charset: utf-8
+  maxFile: 100MB
+  max:
+    file:
+      size: 100MB
+    history: 30
+---
+spring:
+  profiles: prod
+  application:
+    name: zy-point
+logger:
+  path: /tmp/logs/${spring.application.name}
+  file: com.anyangdp.tools
+  pattern: ===%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L - %msg%n
+  charset: utf-8
+  maxFile: 100MB
+  max:
+    file:
+      size: 100MB
+    history: 30

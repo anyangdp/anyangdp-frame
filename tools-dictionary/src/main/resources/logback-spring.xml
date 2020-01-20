@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+<!--<configuration scan="true" scanPeriod="60 seconds" debug="false">-->
+    <!-- 继承基础xml-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+<!--    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />-->
+    <springProperty name="contextName" source="spring.application.name"/>
+    <contextName>${contextName}</contextName>
+    <springProperty name="loggerPath" source="logger.path"/>
+    <springProperty name="loggerFile" source="logger.file"/>
+    <springProperty name="loggerPattern" source="logger.pattern"/>
+    <springProperty name="loggerCharset" source="logger.charset"/>
+    <springProperty name="loggerMaxFileSize" source="logger.max.file.size"/>
+    <springProperty name="loggerMaxHistory" source="logger.max.history"/>
+
+    <!-- 日志记录器，日期滚动记录 -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${loggerPath}/%d{yyyy-MM-dd}/${loggerFile}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${loggerMaxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${loggerMaxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${loggerPattern}</pattern>
+            <charset>${loggerCharset}</charset>
+        </encoder>
+    </appender>
+
+    <!--日志异步到数据库 -->
+    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="com.zaxxer.hikari.HikariDataSource">
+                <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                <jdbcUrl>jdbc:mysql://localhost:3306/logs?characterEncoding=utf-8&amp;useSSL=false</jdbcUrl>
+                <username>root</username>
+                <!-- 数据库密码 -->
+                <password>123456</password>
+            </dataSource>
+        </connectionSource>
+    </appender>
+
+    <!-- 环境，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="staging">
+        <root level="INFO">
+<!--            <appender-ref ref="CONSOLE" />-->
+<!--            <appender-ref ref="DB" />-->
+            <appender-ref ref="ROLLING_FILE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+<!--            <appender-ref ref="DB" />-->
+            <appender-ref ref="ROLLING_FILE" />
+        </root>
+    </springProfile>
+
+</configuration>

@@ -1,0 +1,135 @@
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: Pyt*say*cy1
+    jpa:
+      hibernate:
+        ddl-auto: none
+server:
+  port: 9100
+  servlet:
+    context-path: /zy/point
+management:
+  endpoints:
+    web:
+      exposure:
+        # 暴露的端点
+        include: shutdown
+  endpoint:
+    #开启shutdown
+    shutdown:
+      enabled: true
+eureka:
+  instance:
+    hostname: zy-point
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  mapperLocations: classpath:mapper/*.xml
+  typeAliasesPackage: com.anyangdp.tools.domain.dobj
+---
+spring:
+  profiles: staging
+  datasource:
+    url: jdbc:mysql://47.103.43.77:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: DB20191217!
+  jpa:
+    hibernate:
+      ddl-auto: none
+server:
+  port: 9100
+  servlet:
+    context-path: /zy/point
+management:
+  endpoints:
+    web:
+      exposure:
+        # 暴露的端点
+        include: shutdown
+  endpoint:
+    #开启shutdown
+    shutdown:
+      enabled: true
+eureka:
+  instance:
+    hostname: zy-point
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://47.103.43.77:8762/eureka/
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  mapperLocations: classpath:mapper/*.xml
+  typeAliasesPackage: com.anyangdp.tools.domain.dobj
+---
+spring:
+  profiles: prod
+  datasource:
+    url: jdbc:mysql://47.103.43.77:3306/points?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: DB20191217!
+    jpa:
+      hibernate:
+        ddl-auto: none
+server:
+  port: 9100
+  servlet:
+    context-path: /zy/point
+management:
+  endpoints:
+    web:
+      exposure:
+        # 暴露的端点
+        include: shutdown
+  endpoint:
+    #开启shutdown
+    shutdown:
+      enabled: true
+eureka:
+  instance:
+    hostname: zy-point
+    #    ip-address: 127.0.0.1
+    prefer-ip-address: true
+  #    non-secure-port: 8761
+  client:
+    #    registerWithEureka: false
+    #    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://47.103.43.77:8762/eureka/
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  mapperLocations: classpath:mapper/*.xml
+  typeAliasesPackage: com.anyangdp.tools.domain.dobj

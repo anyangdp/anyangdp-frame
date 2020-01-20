@@ -1,0 +1,21 @@
+version: '3'
+services:
+  tools-dictionary-server:
+    image: anyangdp/tools-dictionary:latest
+    container_name: tools-dictionary
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /tmp:/tmp/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100k"
+        max-file: "1"
+    ports:
+      - 9003:9003
+    restart: always
+    entrypoint: nohup java -jar /app.jar --spring.profiles.active=prod > /dev/null 2>&1 &
