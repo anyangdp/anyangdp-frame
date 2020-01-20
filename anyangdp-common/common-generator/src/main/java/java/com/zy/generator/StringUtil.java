@@ -1,13 +1,20 @@
-package com.anyangdp.utils;
+package java.com.zy.generator;
 
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-
-public class StringUtil extends StringUtils{
+public class StringUtil{
 	/**
 	 * 首字母变小写
 	 */
@@ -175,8 +182,7 @@ public class StringUtil extends StringUtils{
      * 字符串解析，不使用StringTokenizer类和java.lang.String的split()方法 
      * 将字符串根据分割符转换成字符串数组 
      * @param string 字符串 
-     * @param c 分隔符 
-     * @return 解析后的字符串数组 
+     * @return 解析后的字符串数组
      */  
     public static String[] split(String string, char separator)  
     {  
@@ -227,5 +233,69 @@ public class StringUtil extends StringUtils{
         }  
           
         return strArray;  
-    }  
+    }
+
+	/**
+	 * 将一个 JavaBean 对象转化为一个  Map
+	 *
+	 * @param bean 要转化的JavaBean 对象
+	 * @return 转化出来的  Map 对象
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Map<String, Object> convertBean(Object bean) {
+		Class type = bean.getClass();
+		Map<String, Object> returnMap = new HashMap();
+		try {
+			BeanInfo beanInfo = null;
+			beanInfo = Introspector.getBeanInfo(type);
+			PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+			for (PropertyDescriptor descriptor : propertyDescriptors) {
+				String propertyName = descriptor.getName();
+				if (!propertyName.equals("class")) {
+					Method readMethod = descriptor.getReadMethod();
+					Object result = readMethod.invoke(bean, new Object[0]);
+					if (result != null) {
+						returnMap.put(propertyName, result);
+					} else {
+						returnMap.put(propertyName, "");
+					}
+				}
+			}
+		} catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
+//                 * @throws IntrospectionException 如果分析类属性失败
+//                 * @throws IllegalAccessException 如果实例化 JavaBean 失败
+//                 * @throws InvocationTargetException 如果调用属性的 setter 方法失败
+			e.printStackTrace();
+		}
+		return returnMap;
+	}
+
+	/**
+	 * 将object转换为string
+	 *
+	 * @param obj object
+	 * @return String
+	 */
+	public static String getString(Object obj) {
+		if (obj != null) {
+			return obj.toString();
+		}
+		return "";
+	}
+
+	/**
+	 * 将N个string拼接成一个string
+	 *
+	 * @param str 字符串
+	 * @return 字符串
+	 */
+	public static String toString(String... str) {
+		StringBuilder stringBuilder = new StringBuilder("");
+		if (str != null && str.length > 0) {
+			for (int i = 0; i < str.length; ) {
+				stringBuilder.append(str[i++]);
+			}
+		}
+		return stringBuilder.toString();
+	}
 }
