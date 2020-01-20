@@ -1,4 +1,4 @@
-package java.com.zy.generator;
+package com.zy.generator;
 
 
 import java.beans.BeanInfo;

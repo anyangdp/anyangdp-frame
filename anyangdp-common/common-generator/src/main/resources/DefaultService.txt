@@ -1,6 +1,6 @@
 package ${package}.service.impl;
 
-import com.hxb.common.framework.service.AbstractService;
+import com.anyangdp.frame.service.AbstractService;
 import ${package}.domain.dobj.${className}DO;
 import ${package}.domain.dto.${className}DTO;
 import ${package}.mapper.${className}Mapper;

@@ -1,7 +1,7 @@
 package ${package}.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hxb.common.framework.handler.AbstractDTO;
+import com.anyangdp.frame.handler.AbstractDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.time.LocalDateTime;

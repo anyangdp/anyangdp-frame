@@ -1,4 +1,4 @@
-package java.com.zy.generator;
+package com.zy.generator;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.beetl.core.BeetlKit;
